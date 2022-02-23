@@ -1,0 +1,137 @@
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_REVEAL_JS_VERSION: 4
+
+* SFML basic about window
+
+** constructor ()
+#+REVEAL_HTML: <div style="font-size: 50%;">
+#+begin_src c
+    Window(VideoMode mode, const String& title, Uint32 style = Style::Default, const ContextSettings& settings = ContextSettings());
+#+end_src
+
+#+REVEAL_HTML: <div style="font-size: 65%;">
++---------------------+--------------------------------------------------------------------------------------------------------------+
+|     enum value      |------------------------------------------description---------------------------------------------------------|
++---------------------+--------------------------------------------------------------------------------------------------------------+
+|   sf::Style::None   |           The window doesn't have any decorations, and it cannot be combined with any other style.           |
++---------------------+--------------------------------------------------------------------------------------------------------------+
+| sf::Style::Titlebar |                                            This adds a titlebar.                                             |
++---------------------+--------------------------------------------------------------------------------------------------------------+
+|  sf::Style::Resize  |              This adds a maximize button. This also enables the window to be manually resized.               |
++---------------------+--------------------------------------------------------------------------------------------------------------+
+|  sf::Style::Close   |                                          This adds a close button.                                           |
++---------------------+--------------------------------------------------------------------------------------------------------------+
+|sf::Style::Fullscreen|   This launches the window in fullscreen mode. Note that this cannot be combined with any other style and    |
+|                     |                                         requires a valid video mode.                                         |
++---------------------+--------------------------------------------------------------------------------------------------------------+
+| sf::Style::Default  |                     This combines Titlebar, Resize, and Close. This is the default style                     |
++---------------------+--------------------------------------------------------------------------------------------------------------+
+
+** Events
+*** Window related events
+#+REVEAL_HTML: <div style="font-size: 40%;">
++------------------+---------------+---------------------------------------------------------------------------------------------------------------+
+|       Enum       |------value----|-------------------------------Memberassociated-------Description----------------------------------------------|
++------------------+---------------+---------------------------------------------------------------------------------------------------------------+
+|  Event::Closed   |     None      |    This event is triggered when the OS detects that the user wants to close a window—the close button, key    |
+|                  |               |                                            combination, and so on.                                            |
++------------------+---------------+---------------------------------------------------------------------------------------------------------------+
+|  Event::Resized  |  Event::size  |        This event is triggered when the OS detects that the window has been resized manually, or when         |
+|                  | holds the new |                                       Window::setSize() has been used.                                        |
+|                  |  size of the  |                                                                                                               |
+|                  |    window     |                                                                                                               |
++------------------+---------------+---------------------------------------------------------------------------------------------------------------+
+| Event::LostFocus |     None      |  This event is triggered when the window loses or gains focus. Windows which are out of focus don't receive   |
+|Event::GainedFocus|               |                                               keyboard events.                                                |
++------------------+---------------+---------------------------------------------------------------------------------------------------------------+
+*** Keyboard related events
+
+#+REVEAL_HTML: <div style="font-size: 40%;">
++------------------+----------------------+-------------------------------------------------------------------------------------+
+|Enum value        |--------Member--------|-------------------------associated---Description------------------------------------|
++------------------+----------------------+-------------------------------------------------------------------------------------+
+|Event::KeyPressed | Event::key holds the |  This event is triggered when a single button is pressed or released on a focused   |
+|Event::KeyReleased| pressed/released key |                                       window.                                       |
++------------------+----------------------+-------------------------------------------------------------------------------------+
+|Event::TextEntered|Event::text holds the | This event is triggered every time a character is typed. This produces a printable  |
+|                  | UTF-32 unicode value |            character from the user input, and is useful for text fields             |
+|                  |   of the character   |                                                                                     |
++------------------+----------------------+-------------------------------------------------------------------------------------+
+*** Mouse related Event
+#+REVEAL_HTML: <div style="font-size: 40%;">
++--------------------------+----------------------+-------------------------------------------------------------------------------------+
+|Enum value                |--------Member--------|-------------------------associated---Description------------------------------------|
++--------------------------+----------------------+-------------------------------------------------------------------------------------+
+|Event::MouseMoved         |Event::mouseMove holds|   This event is triggered when the mouse changes its position inside the window.    |
+|                          |the new mouse position|                                                                                     |
++--------------------------+----------------------+-------------------------------------------------------------------------------------+
+|Event::MouseButtonPressed |  Event::mouseButton  |This event is triggered when a mouse button is pressed inside a window. Five buttons |
+|Event::MouseButtonReleased|      holds the       |  are currently supported—left, right, middle, extra button 1, and extra button 2.   |
+|                          |   pressed/released   |                                                                                     |
+|                          | button and the mouse |                                                                                     |
+|                          |       position       |                                                                                     |
++--------------------------+----------------------+-------------------------------------------------------------------------------------+
+|  Event::MouseWheelMoved  |  Event::mouseWheel   |         This event is triggered when the scroll wheel moves inside a window         |
+|                          |holds the delta ticks |                                                                                     |
+|                          | of the wheel and the |                                                                                     |
+|                          |    mouse position    |                                                                                     |
++--------------------------+----------------------+-------------------------------------------------------------------------------------+
+
+*** Joystick related events
+#+REVEAL_HTML: <div style="font-size: 40%;">
++-----------------------------+----------------------+-----------------------------------------------------------------------------------------+
+|Enum value                   |-------Member-------- |--------------------------associated-Description-----------------------------------------|
++-----------------------------+----------------------+-----------------------------------------------------------------------------------------+
+| Event::JoystickConnected    |Event::joystickConnect|            This event is triggered when a joystick connects or disconnects.             |
+|Event::JoystickDisconnected  | holds the ID of the  |                                                                                         |
+|                             |    joystick just     |                                                                                         |
+|                             |connected/disconnected|                                                                                         |
++-----------------------------+----------------------+-----------------------------------------------------------------------------------------+
+|Event::JoystickButtonPressed |Event::joystickButton | This is triggered when a button on a joystick is pressed. SFML supports a maximum of 8  |
+|Event::JoystickButtonReleased| holds the number of  |                          joysticks with up to 32 buttons each.                          |
+|                             |the button pressed and|                                                                                         |
+|                             |   the joystick ID    |                                                                                         |
++-----------------------------+----------------------+-----------------------------------------------------------------------------------------+
+|    Event::JoystickMoved     | Event::joystickMove  |This is triggered when an axis of a joystick is moved. The move threshold can be set via |
+|                             |holds the moved axis, |              Window::setJoystick Threshold(). SFML supports up to 8 axes.               |
+|                             |the new axis position,|                                                                                         |
+|                             | and the joystick ID  |                                                                                         |
++-----------------------------+----------------------+-----------------------------------------------------------------------------------------+
+* Graphics-SFML
+** Basic elements
+#+BEGIN_SRC  cpp
+sf::RenderWindow window;
+class RenderWindow:: public Window
+{
+
+}
+#+END_SRC
+** cycle for draw somethings
+#+BEGIN_SRC cpp
+window.clear([sf::Color::XXX]);
+
+window.draw(...);
+
+window.display();
+#+END_SRC
+
+* problems
+write a program which make an object rotate around other.
+
+
+
+      (x -2)^2 + (y-2)^2 = 4
+      Ry = sqrt(4 - (x - Rx)^2) + 2
+
+
+      x = 0 -> y = 0;
+      x = 1 -> y -2 = can 3 or - can 3
+      x = 2 -> y = 0 or 4
+      x = 4u
+
+
+    ****
+   *     *
+    *****
+* Note
+C-q C-j add a new line character in emacs
