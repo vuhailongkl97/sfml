@@ -40,21 +40,48 @@ class Orbit {
     Orbit(Orbit &&o) = delete;
     Orbit & operator = (const Orbit &o) = delete;
     Orbit && operator = (Orbit && o) = delete;
+    void show()
+    {
+        for(auto &it:Points)
+        {
+            std::cout << it.x << ", "<< it.y<<'\n';
+        }
+
+    }
 
     void new_orbit(sf::Vector2i _I)
     {
         Points.clear();
         this->I = _I;
-        for(int x = I.x -R ; x < I.x + R; x+=this->speed)
+        float y_prev = 0;
+        for(float x = I.x -R ; x <= I.x + R; x+=this->speed)
         {
-           int y = (2.0*I.y + 2*sqrt(R*R - (I.x -x)*(I.x -x)))/2.0;
+           float y = (I.y + sqrt(R*R - (I.x -x)*(I.x -x)));
+           if(y_prev && fabs(y - y_prev) > 7)
+           {
+  //             x-=this->speed*(R - fabs(y-y_prev) )/R;
+               x-=this->speed*0.60;
+               y = (I.y + sqrt(R*R - (I.x -x)*(I.x -x)));
+           }
+
            Points.push_back({x,y});
+           y_prev = y;
         }
 
-        for(int x = I.x +R ; x >= I.x - R; x-=this->speed)
+        for(float x = I.x +R ; x >= I.x - R ; x-=this->speed)
         {
-           int y = (2.0*I.y - 2*sqrt(R*R - (I.x -x)*(I.x -x)))/2.0;
+           float y = (I.y - sqrt(R*R - (I.x -x)*(I.x -x)));
+
+           if(y_prev && fabs(y - y_prev) > 8)
+           {
+               x+=this->speed*0.60;
+               if(x > I.x + R)
+                   x = I.x + R;
+
+               y = (I.y - sqrt(R*R - (I.x -x)*(I.x -x)));
+           }
            Points.push_back({x,y});
+           y_prev = y;
         }
     }
     bool setSpeed(uint8_t speed){
@@ -62,28 +89,20 @@ class Orbit {
         return true;
     }
 
-        sf::Vector2i get_next()
-        {
-            if(Points.size() == 0)
-            {
-                std::cerr << "size = 0\n";
-            }
-            idx ++;
-            if(idx >= Points.size())
-            {
-                idx= 0;
-            }
-            return Points.at(idx);
-        }
-
-    void show()
+    sf::Vector2f get_next()
     {
-        for(auto i:Points)
+        if(Points.size() == 0)
         {
-            std::cout << "(" << i.x << ", " << i.y << ")\n";
+            std::cerr << "size = 0\n";
         }
-
+        idx ++;
+        if(idx >= Points.size())
+        {
+            idx= 0;
+        }
+        return Points.at(idx);
     }
+
     const sf::Shape* getShape()
     {
         return shape.get();
@@ -98,10 +117,38 @@ class Orbit {
         sf::Vector2i I;
         uint16_t R;
         std::unique_ptr<sf::Shape> shape;
-        std::vector<sf::Vector2i> Points;
+        std::vector<sf::Vector2f> Points;
         uint16_t idx;
         uint8_t speed;
 };
+
+class Star {
+    public:
+        void setPosition(const sf::Vector2f &pos);
+        sf::Vector2f getPosition();
+        bool follow(Star &o);
+
+    private:
+        std::string name;
+        ::Orbit orbit;
+        std::unique_ptr<sf::Shape> shape;
+};
+
+void Star::setPosition(const sf::Vector2f &pos)
+{
+
+}
+
+sf::Vector2f Star::getPosition()
+{
+
+    return {1,1};
+}
+
+bool Star::follow(Star &o)
+{
+   return false;
+}
 
 int main()
 {
@@ -112,9 +159,9 @@ int main()
     sf::Text text;
     sf::Font font;
     std::vector<Orbit> stars{{{200,200}, 100, new sf::CircleShape(10),2},
-        {{200,200}, 200, new sf::CircleShape(10), 1},
-        {{200,200}, 250, new sf::CircleShape(10), 3},
-        {{200,200}, 300, new sf::CircleShape(10), 5}  
+       {{200,200}, 200, new sf::CircleShape(10), 2},
+       {{200,200}, 250, new sf::CircleShape(10), 2},
+       {{200,200}, 300, new sf::CircleShape(10), 2}
     };
 
     text.setFillColor(sf::Color::Red);
