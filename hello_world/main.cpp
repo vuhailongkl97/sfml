@@ -5,7 +5,8 @@
 #include <memory>
 #include <vector>
 
-const char *circle_file_path = "/home/long/working/sfml/image/circle.png";
+const std::string circle_file_path =
+    "/home/long/working/sfml/image/firefox.png";
 
 class Orbit {
 
@@ -14,42 +15,38 @@ class Orbit {
         return sf::Vector2f(x, (sqrt(R * R - (x - I.x) * (x - I.x)) + I.y));
     }
 
-    Orbit(sf::Vector2i _I, uint16_t _R, sf::Shape *sh, uint8_t speed)
-        : I(_I), R(_R), shape(sh), idx(0) {
+    Orbit(sf::Vector2i _I, uint16_t _R, uint8_t speed) : I(_I), R(_R), idx(0) {
         this->speed = speed;
-        new_orbit(_I);
+
+        if (false == new_orbit(_I)) {
+            std::cerr << "new orbit is failed, size = 0\n";
+        }
     }
 
     Orbit(const Orbit &o) {
         this->speed = o.speed;
         this->I = o.I;
         this->R = o.R;
-        sf::CircleShape *ptr = dynamic_cast<sf::CircleShape *>(o.shape.get());
-        if (ptr == nullptr) {
-            std::cerr << "error cast\n";
-            exit(0);
-        }
-        this->shape = std::make_unique<sf::CircleShape>(ptr->getRadius());
         this->Points = o.Points;
     }
 
     Orbit(Orbit &&o) = delete;
     Orbit &operator=(const Orbit &o) = delete;
     Orbit &&operator=(Orbit &&o) = delete;
+
     void show() {
         for (auto &it : Points) {
             std::cout << it.x << ", " << it.y << '\n';
         }
     }
 
-    void new_orbit(sf::Vector2i _I) {
+    bool new_orbit(sf::Vector2i _I) {
         Points.clear();
         this->I = _I;
         float y_prev = 0;
         for (float x = I.x - R; x <= I.x + R; x += this->speed) {
             float y = (I.y + sqrt(R * R - (I.x - x) * (I.x - x)));
             if (y_prev && fabs(y - y_prev) > 7) {
-                //             x-=this->speed*(R - fabs(y-y_prev) )/R;
                 x -= this->speed * 0.60;
                 y = (I.y + sqrt(R * R - (I.x - x) * (I.x - x)));
             }
@@ -71,6 +68,7 @@ class Orbit {
             Points.push_back({x, y});
             y_prev = y;
         }
+        return Points.size() != 0;
     }
     bool setSpeed(uint8_t speed) {
         this->speed = speed;
@@ -88,36 +86,101 @@ class Orbit {
         return Points.at(idx);
     }
 
-    const sf::Shape *getShape() { return shape.get(); }
-
-    void setPosition4Shape(float x, float y) { this->shape->setPosition(x, y); }
-
   private:
     sf::Vector2i I;
     uint16_t R;
-    std::unique_ptr<sf::Shape> shape;
     std::vector<sf::Vector2f> Points;
-    uint16_t idx;
+    size_t idx;
     uint8_t speed;
 };
 
-class Star {
+class Subject;
+class Observer {
   public:
-    void setPosition(const sf::Vector2f &pos);
+    virtual std::string getID() const = 0;
+    virtual bool update(std::shared_ptr<void>) = 0;
+    ~Observer() {}
+};
+
+class Subject {
+  public:
+    bool attach(Observer *o) {
+        follower.push_back(o);
+        return true;
+    }
+    bool detach(Observer *o) {
+        follower.erase(std::remove_if(
+            follower.begin(), follower.end(),
+            [o](const Observer *v) { return v->getID() == o->getID(); }));
+        return true;
+    }
+
+    virtual std::shared_ptr<void> get_private_data() = 0;
+
+    void notify() {
+        for (auto &f : follower) {
+            f->update(get_private_data());
+        }
+    }
+    ~Subject() {}
+
+  private:
+    std::vector<Observer *> follower;
+};
+
+class Star : public Observer, public Subject {
+
+  public:
+    std::shared_ptr<void> get_private_data() {
+        auto pos = getPosition();
+        return std::make_shared<sf::Vector2f>(pos.x, pos.y);
+    }
+
+    bool update(std::shared_ptr<void> data) {
+        std::shared_ptr<sf::Vector2f> _data =
+            std::static_pointer_cast<sf::Vector2f>(data);
+        std::cout << "update with data pos is " << _data->x << ", " << _data->y
+                  << "\n";
+        this->setG(*_data);
+        return true;
+    }
+
+    std::string getID() const { return name; }
+    void setG(const sf::Vector2f &pos);
     sf::Vector2f getPosition();
     bool follow(Star &o);
+    const sf::Shape *getShape() { return shape.get(); }
+    Star(Orbit *ob, sf::Shape *sh, std::string _name = "Star_default")
+        : name(_name), orbit(ob), shape(sh) {}
+    Star(const Star &o) {
+        this->name = o.name;
+        this->orbit = o.orbit;
+        this->shape = o.shape;
+    }
+
+    bool go() {
+        auto nstep = this->orbit->get_next();
+        shape->setPosition({(float)nstep.x, (float)nstep.y});
+        notify();
+
+        return true;
+    }
 
   private:
     std::string name;
-    ::Orbit orbit;
-    std::unique_ptr<sf::Shape> shape;
+    std::shared_ptr<Orbit> orbit;
+    std::shared_ptr<sf::Shape> shape;
 };
 
-void Star::setPosition(const sf::Vector2f &pos) {}
+void Star::setG(const sf::Vector2f &pos) {
+    orbit->new_orbit({(int)pos.x, (int)pos.y});
+}
 
-sf::Vector2f Star::getPosition() { return {1, 1}; }
+sf::Vector2f Star::getPosition() { return shape->getPosition(); }
 
-bool Star::follow(Star &o) { return false; }
+bool Star::follow(Star &o) {
+    return orbit->new_orbit({(int)o.getPosition().x, (int)o.getPosition().y});
+}
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 800), "SFML hello world!",
@@ -127,10 +190,24 @@ int main() {
     sf::Sprite sprite;
     sf::Text text;
     sf::Font font;
-    std::vector<Orbit> stars{{{200, 200}, 100, new sf::CircleShape(10), 2},
-                             {{200, 200}, 200, new sf::CircleShape(10), 2},
-                             {{200, 200}, 250, new sf::CircleShape(10), 2},
-                             {{200, 200}, 300, new sf::CircleShape(10), 2}};
+
+    std::vector<std::string> solar_string{circle_file_path, circle_file_path,
+                                          circle_file_path};
+    sf::Texture solar_textures[3];
+    sf::CircleShape *solar_shapes[3] = {new sf::CircleShape(10),
+                                        new sf::CircleShape(10),
+                                        new sf::CircleShape(10)};
+    for (int i = 0; i < 3; i++) {
+        solar_textures[i].loadFromFile(solar_string.at(i));
+        solar_shapes[i]->setTexture(&solar_textures[i]);
+    }
+
+    std::vector<Star> stars{
+        {new Orbit({200, 200}, 100, 1), solar_shapes[0], "abc1"},
+        {new Orbit({200, 200}, 50, 2), solar_shapes[1], "abc2"},
+        {new Orbit({200, 200}, 300, 1), solar_shapes[2], "abc3"}};
+
+    stars.at(0).attach(&stars.at(1));
 
     text.setFillColor(sf::Color::Red);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
@@ -176,10 +253,8 @@ int main() {
                 localPosition = sf::Mouse::getPosition(window);
                 std::cout << localPosition.x << ", " << localPosition.y << '\n';
                 for (auto &it : stars) {
-                    it.new_orbit({localPosition.x, localPosition.y});
+                    it.setG({(float)localPosition.x, (float)localPosition.y});
                 }
-                // circle_shape.setPosition(localPosition.x, localPosition.y);
-                // text.setPosition(localPosition.x, localPosition.y);
                 break;
             }
             case sf::Event::MouseWheelScrolled: {
@@ -258,9 +333,8 @@ int main() {
 
         window.draw(text);
         for (auto &it : stars) {
-            auto next_point = it.get_next();
+            it.go();
             if (it.getShape()) {
-                it.setPosition4Shape(next_point.x, next_point.y);
                 window.draw(*it.getShape());
             }
         }
