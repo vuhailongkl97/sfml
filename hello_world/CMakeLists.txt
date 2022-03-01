@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.16.3)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(sfml_hello)
+
+find_program(CLANG_TIDY clang-tidy)
+message("use" ${CLANG_TIDY})
+set(CMAKE_CXX_CLANG_TIDY
+  clang-tidy;
+  -header-filter=.;
+#  -checks=*;)
+  -warnings-as-errors=*;)
+
+set (CMAKE_CXX_STANDARD 11)
+
 add_executable(sfml_hello main.cpp)
 
 target_link_libraries(sfml_hello sfml-graphics sfml-window sfml-system)

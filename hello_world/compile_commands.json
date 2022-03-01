@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/long/working/sfml/hello_world",
+  "command": "/usr/bin/c++      -std=gnu++11 -o CMakeFiles/sfml_hello.dir/main.cpp.o -c /home/long/working/sfml/hello_world/main.cpp",
+  "file": "/home/long/working/sfml/hello_world/main.cpp"
+}
+]
