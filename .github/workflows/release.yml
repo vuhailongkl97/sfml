@@ -16,9 +16,9 @@ jobs:
     - name: install dependencies
       run: sudo apt install clang-tidy libsfml-dev -y
     - name: configure
-      run: mkdir build && cd build && cmake ..
+      run: cd hello_world && mkdir build && cd build && cmake ..
     - name: make
-      run: cd build && make
+      run: cd hello_world/build && make
     - name: make check
       run: make check
     - name: make distcheck
