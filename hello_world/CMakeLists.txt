@@ -12,6 +12,7 @@ set(CMAKE_CXX_CLANG_TIDY
 
 set (CMAKE_CXX_STANDARD 11)
 
-add_executable(sfml_hello main.cpp)
+add_executable(sfml_hello src/main.cpp src/Observer.cpp src/Orbit.cpp src/Star.cpp)
 
+target_include_directories(sfml_hello PUBLIC inc/)
 target_link_libraries(sfml_hello sfml-graphics sfml-window sfml-system)
