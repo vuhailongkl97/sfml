@@ -11,6 +11,8 @@ set(CMAKE_CXX_CLANG_TIDY
   -warnings-as-errors=*;)
 
 set (CMAKE_CXX_STANDARD 11)
+message(${CMAKE_CURRENT_SOURCE_DIR})
+add_compile_options(-DCMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(sfml_hello src/main.cpp src/Observer.cpp src/Orbit.cpp src/Star.cpp)
 

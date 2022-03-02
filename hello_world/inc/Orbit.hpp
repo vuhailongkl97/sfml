@@ -9,7 +9,7 @@
 constexpr int THREAD_HOLD = 6;
 constexpr int THREAD_HOLD_MAX = 8;
 constexpr float REDUCE_SPEED = 0.6;
-constexpr float REDUCE_SPEED_MAX = 0.9;
+constexpr float REDUCE_SPEED_MAX = 0.65;
 
 class Orbit {
 
