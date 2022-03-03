@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/long/working/sfml/solar_system",
+  "command": "/usr/bin/c++   -I/home/long/working/sfml/solar_system/inc    -DIMAGE_DIR=\\\"/home/long/working/sfml/solar_system/../image\\\" -std=gnu++11 -o CMakeFiles/sfml_hello.dir/src/main.cpp.o -c /home/long/working/sfml/solar_system/src/main.cpp",
+  "file": "/home/long/working/sfml/solar_system/src/main.cpp"
+},
+{
+  "directory": "/home/long/working/sfml/solar_system",
+  "command": "/usr/bin/c++   -I/home/long/working/sfml/solar_system/inc    -DIMAGE_DIR=\\\"/home/long/working/sfml/solar_system/../image\\\" -std=gnu++11 -o CMakeFiles/sfml_hello.dir/src/Observer.cpp.o -c /home/long/working/sfml/solar_system/src/Observer.cpp",
+  "file": "/home/long/working/sfml/solar_system/src/Observer.cpp"
+},
+{
+  "directory": "/home/long/working/sfml/solar_system",
+  "command": "/usr/bin/c++   -I/home/long/working/sfml/solar_system/inc    -DIMAGE_DIR=\\\"/home/long/working/sfml/solar_system/../image\\\" -std=gnu++11 -o CMakeFiles/sfml_hello.dir/src/Orbit.cpp.o -c /home/long/working/sfml/solar_system/src/Orbit.cpp",
+  "file": "/home/long/working/sfml/solar_system/src/Orbit.cpp"
+},
+{
+  "directory": "/home/long/working/sfml/solar_system",
+  "command": "/usr/bin/c++   -I/home/long/working/sfml/solar_system/inc    -DIMAGE_DIR=\\\"/home/long/working/sfml/solar_system/../image\\\" -std=gnu++11 -o CMakeFiles/sfml_hello.dir/src/Star.cpp.o -c /home/long/working/sfml/solar_system/src/Star.cpp",
+  "file": "/home/long/working/sfml/solar_system/src/Star.cpp"
+}
+]
