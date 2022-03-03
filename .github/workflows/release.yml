@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: install dependencies
       run: sudo apt install clang-tidy libsfml-dev -y
-    - name: configure hello_world folder
-      run: cd hello_world && mkdir build && cd build && cmake ..
-    - name: make hello_world folder
-      run: cd hello_world/build && make
+    - name: configure solar_system folder
+      run: cd solar_system && mkdir build && cd build && cmake ..
+    - name: make solar_system folder
+      run: cd solar_system/build && make
