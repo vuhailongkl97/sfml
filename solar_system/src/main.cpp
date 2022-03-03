@@ -12,6 +12,7 @@
 constexpr const char *IMAGE_DIR = "unknow";
 #endif
 
+constexpr const char *background_path = IMAGE_DIR "/galaxy_background.jpg";
 constexpr std::array<const char *, 9> Solar_surfix_path = {
     "/sun.png",    "/Mercury.jpeg", "/Venus.png",
     "/Earth.jpeg", "/Mars.jpeg",    "/Jupiter.png",
@@ -20,7 +21,7 @@ constexpr std::array<const char *, 9> Solar_surfix_path = {
 constexpr int DEFAULT_POINTCOUNT = 30;
 constexpr float DEFAULT_ANGLE = 3.0;
 constexpr float HALF = 0.5F;
-constexpr unsigned int FRAME_RATE = 60;
+constexpr unsigned int FRAME_RATE = 50;
 
 enum RADIUS_SIZE {
     RADIUS_SIZE_MIN = 8,
@@ -66,12 +67,14 @@ auto main() -> int {
 
     const sf::Vector2f DEFAULT_POSITION = {200, 200};
     const sf::Vector2f DEFAULT_WINDOW_SIZE = {800, 800};
+
     sf::RenderWindow window(
         sf::VideoMode(DEFAULT_WINDOW_SIZE.x, DEFAULT_WINDOW_SIZE.y),
         "SFML hello world!", sf::Style::Default);
+
     sf::FileInputStream afm;
-    sf::Texture texture;
-    sf::Sprite sprite;
+    sf::Texture texture_background;
+    sf::Sprite sprite_background;
     sf::Text text;
     sf::Font font;
 
@@ -119,20 +122,16 @@ auto main() -> int {
     text.setFillColor(sf::Color::Red);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
-    sprite.setPosition(window.getSize().x * HALF, window.getSize().y * HALF);
     window.setFramerateLimit(FRAME_RATE);
-    texture.setRepeated(true);
+
     try {
         font.loadFromFile("../font/example_font.ttf");
         text.setFont(font);
         text.setString("test");
 
-        // texture.loadFromFile(circle_file_path, sf::IntRect());
-        // texture.setSmooth(true);
-        // sprite.setTexture(texture, false);
-        sprite.setColor(sf::Color::Green);
-        sprite.setOrigin(sprite.getLocalBounds().width / 2,
-                         sprite.getLocalBounds().height / 2);
+        texture_background.loadFromFile(background_path, sf::IntRect());
+        texture_background.setSmooth(true);
+        sprite_background.setTexture(texture_background, false);
 
     } catch (std::exception &e) {
         std::cout << "error :" << e.what() << "\n";
@@ -232,10 +231,7 @@ auto main() -> int {
         window.clear(sf::Color::Black);
         // update frame with draw somethings
 
-        // render frame
-        // sprite.rotate(angle);
-        // window.draw(sprite);
-
+        window.draw(sprite_background);
         window.draw(text);
         for (auto &it : stars) {
             it.go();

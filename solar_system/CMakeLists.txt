@@ -7,7 +7,6 @@ message("use" ${CLANG_TIDY})
 set(CMAKE_CXX_CLANG_TIDY
   clang-tidy;
   -header-filter=.;
-#  -checks=*;)
   -warnings-as-errors=*;)
 
 set (CMAKE_CXX_STANDARD 11)
