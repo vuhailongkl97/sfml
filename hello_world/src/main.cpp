@@ -8,29 +8,25 @@
 #include <memory>
 #include <vector>
 
-#ifndef CMAKE_CURRENT_SOURCE_DIR
-#define CMAKE_CURRENT_SOURCE_DIR ""
+#ifndef IMAGE_DIR
+constexpr const char *IMAGE_DIR = "unknow";
 #endif
 
-constexpr std::array<const char*, 9> Solar_surfix_path =
-{
-    "/../image/sun.png",
-    "/../image/Mercury.jpeg",
-    "/../image/Venus.png",
-    "/../image/Earth.jpeg",
-    "/../image/Mars.jpeg",
-    "/../image/Jupiter.png",
-    "/../image/Saturn.jpg",
-    "/../image/Uranus.png",
-    "/../image/Neptune.jpeg"
-};
+constexpr std::array<const char *, 9> Solar_surfix_path = {
+    "/sun.png",    "/Mercury.jpeg", "/Venus.png",
+    "/Earth.jpeg", "/Mars.jpeg",    "/Jupiter.png",
+    "/Saturn.jpg", "/Uranus.png",   "/Neptune.jpeg"};
 
 constexpr int DEFAULT_POINTCOUNT = 30;
 constexpr float DEFAULT_ANGLE = 3.0;
 constexpr float HALF = 0.5F;
 constexpr unsigned int FRAME_RATE = 60;
 
-enum RADIUS_SIZE {RADIUS_SIZE_MIN = 8, RADIUS_SIZE_MEDIUM = 10, RADIUS_SIZE_MAX = 20};
+enum RADIUS_SIZE {
+    RADIUS_SIZE_MIN = 8,
+    RADIUS_SIZE_MEDIUM = 10,
+    RADIUS_SIZE_MAX = 20
+};
 enum RADIUS {
     RADIUS_MIN = 0,
     RADIUS_LV0 = RADIUS_MIN,
@@ -46,17 +42,8 @@ enum RADIUS {
     RADIUS_HIGH = 600
 };
 static const std::array<RADIUS, 10> RADIUS_LV = {
-    RADIUS_LV0,
-    RADIUS_LV1,
-    RADIUS_LV2,
-    RADIUS_LV3,
-    RADIUS_LV4,
-    RADIUS_LV5,
-    RADIUS_LV6,
-    RADIUS_LV7,
-    RADIUS_LV8,
-    RADIUS_LV9
-};
+    RADIUS_LV0, RADIUS_LV1, RADIUS_LV2, RADIUS_LV3, RADIUS_LV4,
+    RADIUS_LV5, RADIUS_LV6, RADIUS_LV7, RADIUS_LV8, RADIUS_LV9};
 
 enum SPEED {
     SPEED_MIN = 1,
@@ -73,9 +60,8 @@ auto main() -> int {
     std::vector<std::string> Solar_string;
     Solar_string.reserve(Solar_surfix_path.size());
 
-    for(const auto *it: Solar_surfix_path)
-    {
-        Solar_string.push_back(std::string(CMAKE_CURRENT_SOURCE_DIR) + std::string(it));
+    for (const auto *it : Solar_surfix_path) {
+        Solar_string.push_back(std::string(IMAGE_DIR) + std::string(it));
     }
 
     const sf::Vector2f DEFAULT_POSITION = {200, 200};
@@ -92,37 +78,43 @@ auto main() -> int {
     constexpr int SOLAR_STARS_NUMBER = 9;
     std::array<sf::Texture, SOLAR_STARS_NUMBER> solar_textures;
     std::map<std::string, sf::CircleShape *> solar_shapes = {
-    {"Sun", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Mercury", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Venus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Earth", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Mars", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Jupiter", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Saturn", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Uranus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-    {"Neptune", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)}};
+        {"Sun", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Mercury",
+         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Venus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Earth", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Mars", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Jupiter",
+         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Saturn", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Uranus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"Neptune",
+         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)}};
     // for (int i = 0; i < solar_shapes.size(); i++) {
     //     solar_textures.at(i).loadFromFile(Solar_string.at(i));
     //     solar_shapes.at(i)->setTexture(&solar_textures.at(i), false);
     // }
     int i = 0;
-    for(auto &it :solar_shapes)
-    {
-         solar_textures.at(i).loadFromFile(Solar_string.at(i));
-         it.second->setTexture(&solar_textures.at(i));
-         i++;
+    for (auto &it : solar_shapes) {
+        solar_textures.at(i).loadFromFile(Solar_string.at(i));
+        it.second->setTexture(&solar_textures.at(i));
+        float x_circle = it.second->getLocalBounds().width * HALF;
+        float y_circle = it.second->getLocalBounds().height * HALF;
+        it.second->setOrigin(x_circle, y_circle);
+        i++;
     }
 
     std::vector<Star> stars{};
     i = 0;
-    for(auto &it :solar_shapes)
-    {
-        auto* orbit{new Orbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
+    for (auto &it : solar_shapes) {
+        auto *orbit{new Orbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
         stars.emplace_back(orbit, it.second, it.first);
         i++;
     }
 
-//    stars.at(1).follow(&stars.at(0));
+    for (size_t i = 1; i < stars.size(); i++) {
+        stars.at(i).follow(&stars.at(0));
+    }
 
     text.setFillColor(sf::Color::Red);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
@@ -167,10 +159,10 @@ auto main() -> int {
             case sf::Event::MouseMoved:
                 localPosition = sf::Mouse::getPosition(window);
                 std::cout << localPosition.x << ", " << localPosition.y << '\n';
-                for (auto &it : stars) {
-                    it.setG({static_cast<float>(localPosition.x),
-                             static_cast<float>(localPosition.y)});
-                }
+
+                stars.at(0).setG({static_cast<float>(localPosition.x),
+                                  static_cast<float>(localPosition.y)});
+
                 break;
             case sf::Event::MouseWheelScrolled:
                 if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
