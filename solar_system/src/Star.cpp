@@ -8,8 +8,7 @@ auto Star::get_private_data() -> std::shared_ptr<void> {
 auto Star::update(std::shared_ptr<void> data) -> bool {
     std::shared_ptr<sf::Vector2f> _data =
         std::static_pointer_cast<sf::Vector2f>(data);
-    std::cout << "update with data pos is " << _data->x << ", " << _data->y
-              << "\n";
+
     this->setG(*_data);
     return true;
 }

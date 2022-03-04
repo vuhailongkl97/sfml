@@ -107,6 +107,10 @@ auto main() -> int {
         i++;
     }
 
+    // Orbit *orbit{new Orbit(DEFAULT_POSITION, RADIUS_LV.at(2), SPEED_LV3)};
+    // orbit->show();
+
+    // exit(0);
     std::vector<Star> stars{};
     i = 0;
     for (auto &it : solar_shapes) {
