@@ -1,10 +1,12 @@
+#include "CircleOrbit.hpp"
 #include "Observer.hpp"
-#include "Orbit.hpp"
+#include "RotateElement.hpp"
 #include "Star.hpp"
 #include <SFML/Graphics.hpp>
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -13,10 +15,11 @@ constexpr const char *IMAGE_DIR = "unknow";
 #endif
 
 constexpr const char *background_path = IMAGE_DIR "/galaxy_background.jpg";
-constexpr std::array<const char *, 9> Solar_surfix_path = {
-    "/sun.png",    "/Mercury.jpeg", "/Venus.png",
-    "/Earth.jpeg", "/Mars.jpeg",    "/Jupiter.png",
-    "/Saturn.jpg", "/Uranus.png",   "/Neptune.jpeg"};
+constexpr int SOLAR_STARS_NUMBER = 10;
+constexpr std::array<const char *, SOLAR_STARS_NUMBER> Solar_surfix_path = {
+    "/sun.png",      "/Mercury.jpeg", "/Venus.png",  "/Earth.jpeg",
+    "/Mars.jpeg",    "/Jupiter.png",  "/Saturn.jpg", "/Uranus.png",
+    "/Neptune.jpeg", "/Neptune.jpeg"};
 
 constexpr int DEFAULT_POINTCOUNT = 30;
 constexpr float DEFAULT_ANGLE = 3.0;
@@ -24,7 +27,7 @@ constexpr float HALF = 0.5F;
 constexpr unsigned int FRAME_RATE = 50;
 
 enum RADIUS_SIZE {
-    RADIUS_SIZE_MIN = 8,
+    RADIUS_SIZE_MIN = 3,
     RADIUS_SIZE_MEDIUM = 10,
     RADIUS_SIZE_MAX = 20
 };
@@ -40,11 +43,13 @@ enum RADIUS {
     RADIUS_LV7 = 350,
     RADIUS_LV8 = 400,
     RADIUS_LV9 = 450,
+    RADIUS_MOON = 20,
     RADIUS_HIGH = 600
 };
+
 static const std::array<RADIUS, 10> RADIUS_LV = {
     RADIUS_LV0, RADIUS_LV1, RADIUS_LV2, RADIUS_LV3, RADIUS_LV4,
-    RADIUS_LV5, RADIUS_LV6, RADIUS_LV7, RADIUS_LV8, RADIUS_LV9};
+    RADIUS_LV5, RADIUS_LV6, RADIUS_LV7, RADIUS_LV8, RADIUS_MOON};
 
 enum SPEED {
     SPEED_MIN = 1,
@@ -59,18 +64,8 @@ enum SPEED {
 auto main() -> int {
 
     std::vector<std::string> Solar_string{};
-    Solar_string.reserve(Solar_surfix_path.size());
-
-    for (const auto *it : Solar_surfix_path) {
-        Solar_string.push_back(std::string(IMAGE_DIR) + std::string(it));
-    }
-
     const sf::Vector2f DEFAULT_POSITION = {200, 200};
     const sf::Vector2f DEFAULT_WINDOW_SIZE = {800, 800};
-
-    sf::RenderWindow window(
-        sf::VideoMode(DEFAULT_WINDOW_SIZE.x, DEFAULT_WINDOW_SIZE.y),
-        "SFML hello world!", sf::Style::Default);
 
     sf::FileInputStream afm;
     sf::Texture texture_background;
@@ -78,10 +73,25 @@ auto main() -> int {
     sf::Text text;
     sf::Font font;
 
-    constexpr int SOLAR_STARS_NUMBER = 9;
+    sf::RenderWindow window(
+        sf::VideoMode(DEFAULT_WINDOW_SIZE.x, DEFAULT_WINDOW_SIZE.y),
+        "SFML hello world!", sf::Style::Default);
+
+    Solar_string.reserve(Solar_surfix_path.size());
+
+    // add prefix for image
+    for (const auto *it : Solar_surfix_path) {
+        Solar_string.push_back(std::string(IMAGE_DIR) + std::string(it));
+    }
+
+    window.setMouseCursorVisible(false);
+    window.setFramerateLimit(FRAME_RATE);
+    window.setTitle(std::to_string(static_cast<int>(window.hasFocus())));
+    window.setVerticalSyncEnabled(true);
+
     std::array<sf::Texture, SOLAR_STARS_NUMBER> solar_textures;
     std::map<std::string, sf::CircleShape *> solar_shapes = {
-        {"0Sun", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"0Sun", new sf::CircleShape(RADIUS_SIZE_MAX, DEFAULT_POINTCOUNT)},
         {"1Mercury",
          new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
         {"2Venus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
@@ -94,62 +104,65 @@ auto main() -> int {
         {"7Uranus",
          new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
         {"8Neptune",
-         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)}};
+         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"9Moon", new sf::CircleShape(RADIUS_SIZE_MIN, DEFAULT_POINTCOUNT)}};
 
     int i = 0;
     for (auto &it : solar_shapes) {
         solar_textures.at(i).loadFromFile(Solar_string.at(i));
         it.second->setTexture(&solar_textures.at(i));
+        it.second->setOutlineThickness(0);
         float x_circle = it.second->getLocalBounds().width * HALF;
         float y_circle = it.second->getLocalBounds().height * HALF;
         it.second->setOrigin(x_circle, y_circle);
         i++;
     }
 
-    // Orbit *orbit{new Orbit(DEFAULT_POSITION, RADIUS_LV.at(2), SPEED_LV3)};
-    // orbit->show();
-    // exit(0);
-
-    std::vector<Element *> stars{};
+    std::map<std::string, Element *> stars{};
     i = 0;
     try {
 
         for (auto &it : solar_shapes) {
             auto *orbit{
-                new Orbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
-            std::shared_ptr<Element> _Star_elem{
-                new Star(orbit, it.second, it.first)};
-            Element *elem = nullptr;
-            elem = new RotateElement(_Star_elem, DEFAULT_ANGLE);
-            stars.push_back(elem);
+                new CircleOrbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
+            stars.insert(std::pair<std::string, Element *>(
+                it.first.c_str(),
+                new RotateElement(new Star(orbit, it.second, it.first),
+                                  DEFAULT_ANGLE)));
             i++;
         }
     } catch (std::exception &e) {
         std::cout << "errror : " << e.what();
-    }
-
-    auto *star_as_subject = dynamic_cast<Subject *>(stars.at(0));
-
-    if(star_as_subject == nullptr)
-    {
-        std::cout << "can't downcast stars.at(0) -> Subject*\n";
         exit(0);
     }
 
-    for (size_t i = 1; i < stars.size(); i++)
-    {
-        stars.at(i)->follow(star_as_subject);
+    stars.insert(std::pair<std::string, Element *>("9Moon", stars["9Moon"]));
+
+    auto *sun_as_subject = dynamic_cast<Subject *>(stars["0Sun"]);
+
+    if (sun_as_subject == nullptr) {
+        std::cout << "can't downcast Sun -> Subject*\n";
+        exit(0);
     }
 
-    text.setFillColor(sf::Color::Red);
-    text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    Subject *earth_as_subject = dynamic_cast<Subject *>(stars["3Earth"]);
 
-    window.setFramerateLimit(FRAME_RATE);
+    if (earth_as_subject == nullptr) {
+        std::cout << "can't downcast Earth -> Subject*\n";
+        exit(0);
+    }
+
+    stars["9Moon"]->follow(earth_as_subject);
+    stars["1Mercury"]->follow(sun_as_subject);
+    stars["2Venus"]->follow(sun_as_subject);
+    stars["3Earth"]->follow(sun_as_subject);
+    stars["4Mars"]->follow(sun_as_subject);
+    stars["5Jupiter"]->follow(sun_as_subject);
+    stars["6Saturn"]->follow(sun_as_subject);
+    stars["7Uranus"]->follow(sun_as_subject);
+    stars["8Neptune"]->follow(sun_as_subject);
 
     try {
-        // font.loadFromFile("../font/example_font.ttf");
-        // text.setFont(font);
-        // text.setString("test");
 
         texture_background.loadFromFile(background_path, sf::IntRect());
         texture_background.setSmooth(true);
@@ -160,13 +173,9 @@ auto main() -> int {
         exit(0);
     }
 
-    window.setMouseCursorVisible(false);
-
     sf::String buffer("abc", std::locale());
     float angle = DEFAULT_ANGLE;
 
-    window.setTitle(std::to_string(static_cast<int>(window.hasFocus())));
-    window.setVerticalSyncEnabled(true);
     sf::Vector2i localPosition = sf::Mouse::getPosition(window);
 
     while (window.isOpen()) {
@@ -183,8 +192,8 @@ auto main() -> int {
                 // std::cout << localPosition.x << ", " << localPosition.y <<
                 // '\n';
 
-                stars.at(0)->setG({static_cast<float>(localPosition.x),
-                                   static_cast<float>(localPosition.y)});
+                stars["0Sun"]->setG({static_cast<float>(localPosition.x),
+                                     static_cast<float>(localPosition.y)});
 
                 break;
             case sf::Event::MouseWheelScrolled:
@@ -258,9 +267,9 @@ auto main() -> int {
         window.draw(sprite_background);
         window.draw(text);
         for (auto &it : stars) {
-            it->go();
-            if (it->getShape() != nullptr) {
-                window.draw(*(it->getShape()));
+            it.second->go();
+            if (it.second->getShape() != nullptr) {
+                window.draw(*(it.second->getShape()));
             }
         }
 

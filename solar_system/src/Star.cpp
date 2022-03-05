@@ -9,6 +9,10 @@ auto Star::update(std::shared_ptr<void> data) -> bool {
     std::shared_ptr<sf::Vector2f> _data =
         std::static_pointer_cast<sf::Vector2f>(data);
 
+#ifdef DEBUG
+    std::cout << "get update : " << getID() << "\n";
+#endif
+
     this->setG(*_data);
     return true;
 }
@@ -40,7 +44,10 @@ auto Star::go() -> bool {
     return true;
 }
 
-void Star::setG(const sf::Vector2f &pos) { orbit->new_orbit({pos.x, pos.y}); }
+void Star::setG(const sf::Vector2f &pos) {
+    orbit->fillRequiredData(static_cast<const void *>(&pos));
+    orbit->fillOrbit();
+}
 
 auto Star::getPosition() -> sf::Vector2f { return shape->getPosition(); }
 

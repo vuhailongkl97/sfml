@@ -4,7 +4,7 @@
 #include "Observer.hpp"
 #include "Orbit.hpp"
 
-constexpr int OFFSET_LIMIT_FOR_NOTIFY = 7;
+constexpr int OFFSET_LIMIT_FOR_NOTIFY = 3;
 
 class Star : public Element {
 

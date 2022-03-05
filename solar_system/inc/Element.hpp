@@ -32,9 +32,7 @@ class DecoratorElement : public Element {
   public:
     auto size() -> size_t override { return _elem->size(); }
     void notify() override { _elem->notify(); }
-    auto attach(Observer *o) -> bool override {
-        return _elem->attach(o);
-    }
+    auto attach(Observer *o) -> bool override { return _elem->attach(o); }
 
     auto detach(Observer *o) -> bool override { return _elem->detach(o); }
 
@@ -44,8 +42,7 @@ class DecoratorElement : public Element {
         return _elem->update(_data);
     }
 
-    explicit DecoratorElement(std::shared_ptr<Element> elem)
-        : _elem(std::move(elem)) {}
+    explicit DecoratorElement(Element *elem) : _elem(elem) {}
 
     void setG(const sf::Vector2f &v) override { _elem->setG(v); }
 
@@ -57,23 +54,15 @@ class DecoratorElement : public Element {
         return _elem->get_private_data();
     }
     auto go() -> bool override { return _elem->go(); }
+    DecoratorElement(const DecoratorElement &o) = delete;
+    DecoratorElement(DecoratorElement &&o) = delete;
+    auto operator=(const DecoratorElement &) -> DecoratorElement = delete;
+    auto operator=(DecoratorElement &&) -> DecoratorElement && = delete;
+
+    ~DecoratorElement() override = default;
 
   protected:
     std::shared_ptr<Element> _elem;
-};
-
-class RotateElement : public DecoratorElement {
-  public:
-    explicit RotateElement(std::shared_ptr<Element> elem, float angle)
-        : _angle(angle), DecoratorElement(std::move(elem)) {}
-
-    auto getShape() -> sf::Shape * override {
-        _elem->getShape()->rotate(_angle);
-        return _elem->getShape();
-    }
-
-  private:
-    float _angle;
 };
 
 #endif // ELEMENT_H_
