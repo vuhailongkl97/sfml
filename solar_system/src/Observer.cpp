@@ -16,6 +16,7 @@ auto Subject::detach(Observer *o) -> bool {
 }
 
 void Subject::notify() {
+    // std::cout << "notify here " << size() << this << "\n";
     for (auto &f : follower) {
         f->update(get_private_data());
     }

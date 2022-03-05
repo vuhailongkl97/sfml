@@ -58,7 +58,7 @@ enum SPEED {
 
 auto main() -> int {
 
-    std::vector<std::string> Solar_string;
+    std::vector<std::string> Solar_string{};
     Solar_string.reserve(Solar_surfix_path.size());
 
     for (const auto *it : Solar_surfix_path) {
@@ -81,22 +81,21 @@ auto main() -> int {
     constexpr int SOLAR_STARS_NUMBER = 9;
     std::array<sf::Texture, SOLAR_STARS_NUMBER> solar_textures;
     std::map<std::string, sf::CircleShape *> solar_shapes = {
-        {"Sun", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Mercury",
+        {"0Sun", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"1Mercury",
          new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Venus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Earth", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Mars", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Jupiter",
+        {"2Venus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"3Earth", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"4Mars", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"5Jupiter",
          new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Saturn", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Uranus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"Neptune",
+        {"6Saturn",
+         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"7Uranus",
+         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
+        {"8Neptune",
          new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)}};
-    // for (int i = 0; i < solar_shapes.size(); i++) {
-    //     solar_textures.at(i).loadFromFile(Solar_string.at(i));
-    //     solar_shapes.at(i)->setTexture(&solar_textures.at(i), false);
-    // }
+
     int i = 0;
     for (auto &it : solar_shapes) {
         solar_textures.at(i).loadFromFile(Solar_string.at(i));
@@ -109,18 +108,37 @@ auto main() -> int {
 
     // Orbit *orbit{new Orbit(DEFAULT_POSITION, RADIUS_LV.at(2), SPEED_LV3)};
     // orbit->show();
-
     // exit(0);
-    std::vector<Star> stars{};
+
+    std::vector<Element *> stars{};
     i = 0;
-    for (auto &it : solar_shapes) {
-        auto *orbit{new Orbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
-        stars.emplace_back(orbit, it.second, it.first);
-        i++;
+    try {
+
+        for (auto &it : solar_shapes) {
+            auto *orbit{
+                new Orbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
+            std::shared_ptr<Element> _Star_elem{
+                new Star(orbit, it.second, it.first)};
+            Element *elem = nullptr;
+            elem = new RotateElement(_Star_elem, DEFAULT_ANGLE);
+            stars.push_back(elem);
+            i++;
+        }
+    } catch (std::exception &e) {
+        std::cout << "errror : " << e.what();
     }
 
-    for (size_t i = 1; i < stars.size(); i++) {
-        stars.at(i).follow(&stars.at(0));
+    auto *star_as_subject = dynamic_cast<Subject *>(stars.at(0));
+
+    if(star_as_subject == nullptr)
+    {
+        std::cout << "can't downcast stars.at(0) -> Subject*\n";
+        exit(0);
+    }
+
+    for (size_t i = 1; i < stars.size(); i++)
+    {
+        stars.at(i)->follow(star_as_subject);
     }
 
     text.setFillColor(sf::Color::Red);
@@ -129,9 +147,9 @@ auto main() -> int {
     window.setFramerateLimit(FRAME_RATE);
 
     try {
-        font.loadFromFile("../font/example_font.ttf");
-        text.setFont(font);
-        text.setString("test");
+        // font.loadFromFile("../font/example_font.ttf");
+        // text.setFont(font);
+        // text.setString("test");
 
         texture_background.loadFromFile(background_path, sf::IntRect());
         texture_background.setSmooth(true);
@@ -139,9 +157,10 @@ auto main() -> int {
 
     } catch (std::exception &e) {
         std::cout << "error :" << e.what() << "\n";
+        exit(0);
     }
 
-    // window.setMouseCursorVisible(false);
+    window.setMouseCursorVisible(false);
 
     sf::String buffer("abc", std::locale());
     float angle = DEFAULT_ANGLE;
@@ -161,10 +180,11 @@ auto main() -> int {
             switch (event.type) {
             case sf::Event::MouseMoved:
                 localPosition = sf::Mouse::getPosition(window);
-                std::cout << localPosition.x << ", " << localPosition.y << '\n';
+                // std::cout << localPosition.x << ", " << localPosition.y <<
+                // '\n';
 
-                stars.at(0).setG({static_cast<float>(localPosition.x),
-                                  static_cast<float>(localPosition.y)});
+                stars.at(0)->setG({static_cast<float>(localPosition.x),
+                                   static_cast<float>(localPosition.y)});
 
                 break;
             case sf::Event::MouseWheelScrolled:
@@ -238,9 +258,9 @@ auto main() -> int {
         window.draw(sprite_background);
         window.draw(text);
         for (auto &it : stars) {
-            it.go();
-            if (it.getShape() != nullptr) {
-                window.draw(*it.getShape());
+            it->go();
+            if (it->getShape() != nullptr) {
+                window.draw(*(it->getShape()));
             }
         }
 

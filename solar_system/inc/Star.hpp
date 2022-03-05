@@ -1,9 +1,12 @@
 #ifndef _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_STAR_HPP
 #define _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_STAR_HPP
+#include "Element.hpp"
 #include "Observer.hpp"
 #include "Orbit.hpp"
 
-class Star : public Observer, public Subject {
+constexpr int OFFSET_LIMIT_FOR_NOTIFY = 7;
+
+class Star : public Element {
 
   public:
     ~Star() override = default;
@@ -16,14 +19,14 @@ class Star : public Observer, public Subject {
     auto update(std::shared_ptr<void> data) -> bool override;
 
     auto getID() -> std::string override;
-    void setG(const sf::Vector2f &pos);
+    void setG(const sf::Vector2f &pos) override;
     auto getPosition() -> sf::Vector2f;
-    auto follow(Star *o) -> bool;
-    auto getShape() -> const sf::Shape *;
+    auto follow(Subject *o) -> bool override;
+    auto getShape() -> sf::Shape * override;
     Star(Orbit *ob, sf::Shape *sh, std::string _name);
     Star(const Star &o);
 
-    auto go() -> bool;
+    auto go() -> bool override;
 
   private:
     std::string name;

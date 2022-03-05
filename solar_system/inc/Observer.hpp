@@ -25,9 +25,10 @@ class Subject {
     Subject(Subject &&o) = delete;
     auto operator=(const Subject &o) -> Subject & = delete;
     auto operator=(Subject &&o) -> Subject && = delete;
-    auto attach(Observer *o) -> bool;
-    auto detach(Observer *o) -> bool;
+    virtual auto attach(Observer *o) -> bool;
+    virtual auto detach(Observer *o) -> bool;
     virtual auto get_private_data() -> std::shared_ptr<void> = 0;
+    virtual auto size() -> size_t { return follower.size(); }
 
     virtual void notify();
     virtual ~Subject() = default;

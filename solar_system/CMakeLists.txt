@@ -9,6 +9,7 @@ set(CMAKE_CXX_CLANG_TIDY
   -header-filter=.;
   -warnings-as-errors=*;)
 
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g ")
 set (CMAKE_CXX_STANDARD 11)
 message(${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-DIMAGE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../image")
