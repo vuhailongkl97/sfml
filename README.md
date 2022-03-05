@@ -8,4 +8,4 @@ clang-tiny, sfml
 
 ## solar system demo
 
-![solar_system]({{site.baseurl}}/solar_system.gif)
+![solar_system](https://raw.githubusercontent.com/vuhailongkl97/sfml/master/solar_system.gif)
