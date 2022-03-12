@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install dependencies
-      run: sudo apt install clang-tidy libsfml-dev -y
+      run: sudo apt-get update && sudo apt install clang-tidy libsfml-dev -y
     - name: configure solar_system folder
       run: cd solar_system && mkdir build && cd build && cmake ..
     - name: make solar_system folder
