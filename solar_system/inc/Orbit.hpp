@@ -9,6 +9,16 @@
 extern const float THREAD_HOLD;
 extern const float ONEHUNDERED;
 
+enum class SPEED : std::uint8_t {
+    MIN = 1,
+    LV1 = MIN,
+    LV2 = 2,
+    LV3 = 3,
+    LV4 = 4,
+    LV5 = 5,
+    HIGH = 4
+};
+
 template <typename T>
 auto calculate_for_inbound(T cb, float x_current, float y_prev, float speed,
                            float x_min, float x_max, float thread_hold)
@@ -60,7 +70,7 @@ auto calculate_for_inbound(T cb, float x_current, float y_prev, float speed,
 class Orbit {
 
   public:
-    explicit Orbit(float speed);
+    explicit Orbit(SPEED speed);
     Orbit(const Orbit &o);
     Orbit(Orbit &&o) = delete;
     virtual ~Orbit() = default;
@@ -68,8 +78,8 @@ class Orbit {
     auto operator=(const Orbit &o) -> Orbit & = delete;
     auto operator=(Orbit &&o) -> Orbit && = delete;
 
-    auto setSpeed(float speed) -> float;
-    auto getSpeed() const -> float;
+    auto setSpeed(SPEED speed) -> SPEED;
+    auto getSpeed() const -> SPEED;
     auto get_next() -> sf::Vector2f;
     virtual auto fillRequiredData(const void *_I) -> bool = 0;
     virtual auto fillOrbit() -> bool = 0;
@@ -81,7 +91,7 @@ class Orbit {
 
   private:
     size_t idx;
-    float speed;
+    SPEED speed;
 };
 
 #endif // ORBIT_HPP

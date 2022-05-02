@@ -3,7 +3,7 @@
 const float THREAD_HOLD = 6;
 const float ONEHUNDERED = 100;
 
-Orbit::Orbit(float _speed) : speed(_speed), idx(0) {
+Orbit::Orbit(SPEED _speed) : speed(_speed), idx(0) {
     std::cout << "need fill data/required data\n";
 }
 
@@ -24,12 +24,12 @@ void Orbit::show() {
     }
 }
 
-auto Orbit::setSpeed(float speed) -> float {
+auto Orbit::setSpeed(SPEED speed) -> SPEED {
     this->speed = speed;
     return this->speed;
 }
 
-auto Orbit::getSpeed() const -> float { return this->speed; }
+auto Orbit::getSpeed() const -> SPEED { return this->speed; }
 
 auto Orbit::get_next() -> sf::Vector2f {
     if (Points.empty()) {

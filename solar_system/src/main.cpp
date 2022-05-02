@@ -1,14 +1,10 @@
 #include "CircleOrbit.hpp"
-#include "Observer.hpp"
 #include "RotateElement.hpp"
 #include "Star.hpp"
 #include <SFML/Graphics.hpp>
-#include <cassert>
-#include <cmath>
 #include <iostream>
 #include <map>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #ifndef IMAGE_DIR
@@ -27,40 +23,26 @@ constexpr float DEFAULT_ANGLE = 3.0;
 constexpr float HALF = 0.5F;
 constexpr unsigned int FRAME_RATE = 50;
 
-enum RADIUS_SIZE {
-    RADIUS_SIZE_MIN = 3,
-    RADIUS_SIZE_MEDIUM = 10,
-    RADIUS_SIZE_MAX = 20
-};
-enum RADIUS {
-    RADIUS_MIN = 0,
-    RADIUS_LV0 = RADIUS_MIN,
-    RADIUS_LV1 = 70,
-    RADIUS_LV2 = 110,
-    RADIUS_LV3 = 150,
-    RADIUS_LV4 = 200,
-    RADIUS_LV5 = 250,
-    RADIUS_LV6 = 300,
-    RADIUS_LV7 = 350,
-    RADIUS_LV8 = 400,
-    RADIUS_LV9 = 450,
-    RADIUS_MOON = 20,
-    RADIUS_HIGH = 600
+enum class RADIUS_SIZE { MIN = 3, MEDIUM = 10, MAX = 20 };
+enum class RADIUS : std::uint16_t {
+    MIN = 0,
+    LV0 = MIN,
+    LV1 = 70,
+    LV2 = 110,
+    LV3 = 150,
+    LV4 = 200,
+    LV5 = 250,
+    LV6 = 300,
+    LV7 = 350,
+    LV8 = 400,
+    LV9 = 450,
+    MOON = 20,
+    HIGH = 600
 };
 
-static const std::array<RADIUS, 10> RADIUS_LV = {
-    RADIUS_LV0, RADIUS_LV1, RADIUS_LV2, RADIUS_LV3, RADIUS_LV4,
-    RADIUS_LV5, RADIUS_LV6, RADIUS_LV7, RADIUS_LV8, RADIUS_MOON};
-
-enum SPEED {
-    SPEED_MIN = 1,
-    SPEED_LV1 = SPEED_MIN,
-    SPEED_LV2 = 2,
-    SPEED_LV3 = 3,
-    SPEED_LV4 = 4,
-    SPEED_LV5 = 5,
-    SPEED_HIGH = 4
-};
+static const std::array<RADIUS, 10> RADIUS_LV{
+    RADIUS::LV0, RADIUS::LV1, RADIUS::LV2, RADIUS::LV3, RADIUS::LV4,
+    RADIUS::LV5, RADIUS::LV6, RADIUS::LV7, RADIUS::LV8, RADIUS::MOON};
 
 auto main() -> int {
 
@@ -96,26 +78,26 @@ auto main() -> int {
         []() -> std::map<std::string, std::unique_ptr<sf::CircleShape>> {
         std::map<std::string, std::unique_ptr<sf::CircleShape>> ret;
 
-        ret["0Sun"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MAX, DEFAULT_POINTCOUNT));
-        ret["1Mercury"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["2Venus"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["3Earth"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["4Mars"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["5Jupiter"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["6Saturn"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["7Uranus"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["8Neptune"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
-        ret["9Moon"] = std::unique_ptr<sf::CircleShape>(
-            new sf::CircleShape(RADIUS_SIZE_MIN, DEFAULT_POINTCOUNT));
+        ret["0Sun"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MAX), DEFAULT_POINTCOUNT));
+        ret["1Mercury"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["2Venus"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["3Earth"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["4Mars"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["5Jupiter"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["6Saturn"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["7Uranus"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["8Neptune"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MEDIUM), DEFAULT_POINTCOUNT));
+        ret["9Moon"] = std::unique_ptr<sf::CircleShape>(new sf::CircleShape(
+            static_cast<float>(RADIUS_SIZE::MIN), DEFAULT_POINTCOUNT));
         return ret;
     };
     auto solar_shapes = gen_map();
@@ -137,8 +119,9 @@ auto main() -> int {
     try {
 
         for (auto &it : solar_shapes) {
-            auto orbit{std::unique_ptr<CircleOrbit>(
-                new CircleOrbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3))};
+            auto orbit{std::unique_ptr<CircleOrbit>(new CircleOrbit(
+                DEFAULT_POSITION, static_cast<uint16_t>(RADIUS_LV.at(i)),
+                SPEED::LV3))};
             auto shape_ptr = std::unique_ptr<sf::Shape>(
                 static_cast<sf::Shape *>(it.second.release()));
             auto v = std::make_shared<RotateElement>(
