@@ -1,17 +1,18 @@
 #include "Star.hpp"
 
-auto Star::get_private_data() -> std::unique_ptr<sf::Vector2f> {
+auto Star::get_private_data() -> std::shared_ptr<void> {
     auto pos = getPosition();
-    return std::unique_ptr<sf::Vector2f>(new sf::Vector2f(pos.x, pos.y));
+    return std::make_shared<sf::Vector2f>(pos.x, pos.y);
 }
 
-auto Star::update(std::unique_ptr<sf::Vector2f> &&data) -> bool {
+auto Star::update(std::shared_ptr<void> data) -> bool {
 
 #ifdef DEBUG
     std::cout << "get update : " << getID() << "\n";
 #endif
 
-    this->setG((*data));
+    auto _data = std::static_pointer_cast<sf::Vector2f>(data);
+    this->setG(*_data);
     return true;
 }
 

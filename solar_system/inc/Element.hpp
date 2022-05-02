@@ -12,15 +12,14 @@ class Element : public Subject, public Observer {
   public:
     Element() = default;
     Element(Element &&) = delete;
-
-    Element(const Element &o) : Subject(o) {}
+    Element(const Element &o) = delete;
 
     auto operator=(const Element &o) -> Element & = delete;
     auto operator=(Element &&o) -> Element && = delete;
 
     auto getID() -> std::string override = 0;
-    auto update(std::unique_ptr<sf::Vector2f> &&d) -> bool override = 0;
-    auto get_private_data() -> std::unique_ptr<sf::Vector2f> override = 0;
+    auto update(std::shared_ptr<void> data) -> bool override = 0;
+    auto get_private_data() -> std::shared_ptr<void> override = 0;
     virtual void setG(const sf::Vector2f &) = 0;
     virtual auto follow(std::weak_ptr<Subject> o) -> bool = 0;
     virtual auto getShape() -> sf::Shape * = 0;
@@ -42,8 +41,8 @@ class DecoratorElement : public Element {
 
     auto getID() -> std::string override { return _elem->getID(); }
 
-    auto update(std::unique_ptr<sf::Vector2f>&& _data) -> bool override {
-        return _elem->update(std::move(_data));
+    auto update(std::shared_ptr<void> data) -> bool override {
+        return _elem->update(data);
     }
 
     explicit DecoratorElement(std::shared_ptr<Element> elem) : _elem(std::move(elem)) {}
@@ -56,7 +55,7 @@ class DecoratorElement : public Element {
 
     auto getShape() -> sf::Shape * override { return _elem->getShape(); }
 
-    auto get_private_data() -> std::unique_ptr<sf::Vector2f> override {
+    auto get_private_data() -> std::shared_ptr<void> override {
         return _elem->get_private_data();
     }
     auto go() -> bool override { return _elem->go(); }

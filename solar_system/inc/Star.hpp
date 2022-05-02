@@ -16,8 +16,8 @@ class Star : public Element, public std::enable_shared_from_this<Star> {
     Star(const Star &o) = delete;
     auto operator=(const Star &o) -> Star & = delete;
     auto operator=(Star &&o) -> Star && = delete;
-    auto get_private_data() -> std::unique_ptr<sf::Vector2f> override;
-    auto update(std::unique_ptr<sf::Vector2f> &&data) -> bool override;
+    auto get_private_data() -> std::shared_ptr<void> override;
+    auto update(std::shared_ptr<void> data) -> bool override;
 
     auto getID() -> std::string override;
     void setG(const sf::Vector2f &pos) override;

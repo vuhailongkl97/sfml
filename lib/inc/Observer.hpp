@@ -1,18 +1,15 @@
 #ifndef _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_OBSERVER_HPP
 #define _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_OBSERVER_HPP
-#include <SFML/Graphics.hpp>
-#include <algorithm>
 #include <iostream>
 #include <memory>
-#include <vector>
 
 class Subject;
 class Observer {
   public:
     virtual auto getID() -> std::string = 0;
-    virtual auto update(std::unique_ptr<sf::Vector2f> &&) -> bool = 0;
-    virtual ~Observer() = default;
-    Observer() = default;
+    virtual auto update(std::shared_ptr<void> data) -> bool = 0;
+    virtual ~Observer();
+    Observer();
     Observer(const Observer &o) = delete;
     Observer(Observer &&o) = delete;
     auto operator=(const Observer &o) -> Observer & = delete;
@@ -21,21 +18,24 @@ class Observer {
 
 class Subject {
   public:
-    Subject() = default;
-    Subject(const Subject &o) = default;
+    Subject();
+    Subject(const Subject &o) = delete;
     Subject(Subject &&o) = delete;
+    virtual ~Subject();
+
     auto operator=(const Subject &o) -> Subject & = delete;
     auto operator=(Subject &&o) -> Subject && = delete;
     virtual auto attach(std::weak_ptr<Observer> o) -> bool;
     virtual auto detach(std::weak_ptr<Observer> o) -> bool;
-    virtual auto get_private_data() -> std::unique_ptr<sf::Vector2f> = 0;
-    virtual auto size() -> size_t { return follower.size(); }
-
+    virtual auto size() -> size_t;
     virtual void notify();
-    virtual ~Subject() = default;
+
+  protected:
+    virtual auto get_private_data() -> std::shared_ptr<void> = 0;
 
   private:
-    std::vector<std::weak_ptr<Observer>> follower;
+    struct Pimpl;
+    std::unique_ptr<Pimpl> follower;
 };
 
 #endif // _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_OBSERVER_HPP
