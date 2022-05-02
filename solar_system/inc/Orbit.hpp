@@ -6,8 +6,8 @@
 #include <iostream>
 #include <vector>
 
-constexpr int THREAD_HOLD = 6;
-constexpr const int ONEHUNDERED = 100;
+extern const float THREAD_HOLD;
+extern const float ONEHUNDERED;
 
 template <typename T>
 auto calculate_for_inbound(T cb, float x_current, float y_prev, float speed,

@@ -4,12 +4,12 @@
 #include "Observer.hpp"
 #include "Orbit.hpp"
 
-constexpr int OFFSET_LIMIT_FOR_NOTIFY = 3;
+extern const float OFFSET_LIMIT_FOR_NOTIFY;
 
 class Star : public Element, public std::enable_shared_from_this<Star> {
 
   public:
-    ~Star() override = default;
+    ~Star() override;
 
     Star() = delete;
     Star(Star &&o) = delete;

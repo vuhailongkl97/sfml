@@ -1,5 +1,9 @@
 #include "Star.hpp"
 
+const float OFFSET_LIMIT_FOR_NOTIFY = 3;
+
+Star::~Star() = default;
+
 auto Star::get_private_data() -> std::shared_ptr<void> {
     auto pos = getPosition();
     return std::make_shared<sf::Vector2f>(pos.x, pos.y);
@@ -23,8 +27,6 @@ auto Star::getShape() -> sf::Shape * { return shape.get(); }
 Star::Star(std::unique_ptr<Orbit> &&ob, std::unique_ptr<sf::Shape> &&sh,
            std::string _name)
     : name(std::move(_name)), orbit(std::move(ob)), shape(std::move(sh)) {}
-
-// Star::Star(const Star &o) : Element(o), enable_shared_from_this(o);
 
 auto Star::go() -> bool {
 
@@ -50,9 +52,7 @@ auto Star::getPosition() -> sf::Vector2f { return shape->getPosition(); }
 auto Star::follow(std::weak_ptr<Subject> o) -> bool {
     auto spf = o.lock();
     if (spf) {
-        //    auto v = shared_from_this();
-        return spf->attach((std::shared_ptr<Star>(shared_from_this())));
-        // return spf->attach((std::shared_ptr<Star>(this)));
+        return spf->attach(shared_from_this());
     }
     return false;
 }

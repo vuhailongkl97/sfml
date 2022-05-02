@@ -31,7 +31,7 @@ struct Subject::Pimpl {
         return true;
     }
 
-    auto size() -> size_t { return follower.size(); }
+    auto size() const -> size_t { return follower.size(); }
 };
 
 auto Subject::attach(std::weak_ptr<Observer> o) -> bool {

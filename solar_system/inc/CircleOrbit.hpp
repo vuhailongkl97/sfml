@@ -2,10 +2,6 @@
 #define CIRCLEORBIT_HPP
 
 #include "Orbit.hpp"
-#include <SFML/Graphics.hpp>
-#include <cmath>
-#include <iostream>
-#include <vector>
 
 class CircleOrbit : public Orbit {
   public:

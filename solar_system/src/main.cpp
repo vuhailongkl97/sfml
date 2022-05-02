@@ -92,7 +92,8 @@ auto main() -> int {
 
     std::array<sf::Texture, SOLAR_STARS_NUMBER> solar_textures;
 
-    auto gen_map = []() -> std::map<std::string, std::unique_ptr<sf::CircleShape>>{
+    auto gen_map =
+        []() -> std::map<std::string, std::unique_ptr<sf::CircleShape>> {
         std::map<std::string, std::unique_ptr<sf::CircleShape>> ret;
 
         ret["0Sun"] = std::unique_ptr<sf::CircleShape>(
@@ -140,8 +141,10 @@ auto main() -> int {
                 new CircleOrbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3))};
             auto shape_ptr = std::unique_ptr<sf::Shape>(
                 static_cast<sf::Shape *>(it.second.release()));
-            auto v = std::make_shared<RotateElement>(std::make_shared<Star>(
-                std::move(orbit), std::move(shape_ptr), it.first), DEFAULT_ANGLE);
+            auto v = std::make_shared<RotateElement>(
+                std::make_shared<Star>(std::move(orbit), std::move(shape_ptr),
+                                       it.first),
+                DEFAULT_ANGLE);
             stars.insert(std::pair<std::string, std::shared_ptr<Element>>(
                 it.first.c_str(), v));
             i++;

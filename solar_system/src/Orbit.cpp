@@ -1,5 +1,8 @@
 #include "Orbit.hpp"
 
+const float THREAD_HOLD = 6;
+const float ONEHUNDERED = 100;
+
 Orbit::Orbit(float _speed) : speed(_speed), idx(0) {
     std::cout << "need fill data/required data\n";
 }

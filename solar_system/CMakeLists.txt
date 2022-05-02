@@ -17,7 +17,8 @@ add_compile_options(-DIMAGE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../image")
 
 add_executable(sfml_hello
   src/main.cpp src/Orbit.cpp
-  src/Star.cpp src/CircleOrbit.cpp)
+  src/Star.cpp src/CircleOrbit.cpp
+  src/Element.cpp )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_SOURCE_DIR}/../lib)
 target_include_directories(sfml_hello PUBLIC inc/

@@ -2,7 +2,6 @@
 #define ROTATE_ELEMENT_H_LEMENT_H_
 
 #include "Element.hpp"
-#include <SFML/Graphics.hpp>
 #include <memory>
 
 class RotateElement : public DecoratorElement {
