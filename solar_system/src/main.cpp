@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #ifndef IMAGE_DIR
@@ -90,22 +91,33 @@ auto main() -> int {
     window.setVerticalSyncEnabled(true);
 
     std::array<sf::Texture, SOLAR_STARS_NUMBER> solar_textures;
-    std::map<std::string, sf::CircleShape *> solar_shapes = {
-        {"0Sun", new sf::CircleShape(RADIUS_SIZE_MAX, DEFAULT_POINTCOUNT)},
-        {"1Mercury",
-         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"2Venus", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"3Earth", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"4Mars", new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"5Jupiter",
-         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"6Saturn",
-         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"7Uranus",
-         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"8Neptune",
-         new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT)},
-        {"9Moon", new sf::CircleShape(RADIUS_SIZE_MIN, DEFAULT_POINTCOUNT)}};
+
+    auto gen_map = []() -> std::map<std::string, std::unique_ptr<sf::CircleShape>>{
+        std::map<std::string, std::unique_ptr<sf::CircleShape>> ret;
+
+        ret["0Sun"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MAX, DEFAULT_POINTCOUNT));
+        ret["1Mercury"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["2Venus"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["3Earth"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["4Mars"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["5Jupiter"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["6Saturn"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["7Uranus"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["8Neptune"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MEDIUM, DEFAULT_POINTCOUNT));
+        ret["9Moon"] = std::unique_ptr<sf::CircleShape>(
+            new sf::CircleShape(RADIUS_SIZE_MIN, DEFAULT_POINTCOUNT));
+        return ret;
+    };
+    auto solar_shapes = gen_map();
 
     int i = 0;
     for (auto &it : solar_shapes) {
@@ -118,17 +130,20 @@ auto main() -> int {
         i++;
     }
 
-    std::map<std::string, Element *> stars{};
+    std::map<std::string, std::shared_ptr<Element>> stars;
+    std::weak_ptr<Element> wptr;
     i = 0;
     try {
 
         for (auto &it : solar_shapes) {
-            auto *orbit{
-                new CircleOrbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3)};
-            stars.insert(std::pair<std::string, Element *>(
-                it.first.c_str(),
-                new RotateElement(new Star(orbit, it.second, it.first),
-                                  DEFAULT_ANGLE)));
+            auto orbit{std::unique_ptr<CircleOrbit>(
+                new CircleOrbit(DEFAULT_POSITION, RADIUS_LV.at(i), SPEED_LV3))};
+            auto shape_ptr = std::unique_ptr<sf::Shape>(
+                static_cast<sf::Shape *>(it.second.release()));
+            auto v = std::make_shared<RotateElement>(std::make_shared<Star>(
+                std::move(orbit), std::move(shape_ptr), it.first), DEFAULT_ANGLE);
+            stars.insert(std::pair<std::string, std::shared_ptr<Element>>(
+                it.first.c_str(), v));
             i++;
         }
     } catch (std::exception &e) {
@@ -136,21 +151,10 @@ auto main() -> int {
         exit(0);
     }
 
-    stars.insert(std::pair<std::string, Element *>("9Moon", stars["9Moon"]));
-
-    auto *sun_as_subject = dynamic_cast<Subject *>(stars["0Sun"]);
-
-    if (sun_as_subject == nullptr) {
-        std::cout << "can't downcast Sun -> Subject*\n";
-        exit(0);
-    }
-
-    Subject *earth_as_subject = dynamic_cast<Subject *>(stars["3Earth"]);
-
-    if (earth_as_subject == nullptr) {
-        std::cout << "can't downcast Earth -> Subject*\n";
-        exit(0);
-    }
+    std::shared_ptr<Subject> sun_as_subject =
+        std::static_pointer_cast<Subject>(stars["0Sun"]);
+    std::shared_ptr<Subject> earth_as_subject =
+        std::static_pointer_cast<Subject>(stars["3Earth"]);
 
     stars["9Moon"]->follow(earth_as_subject);
     stars["1Mercury"]->follow(sun_as_subject);
@@ -163,7 +167,6 @@ auto main() -> int {
     stars["8Neptune"]->follow(sun_as_subject);
 
     try {
-
         texture_background.loadFromFile(background_path, sf::IntRect());
         texture_background.setSmooth(true);
         sprite_background.setTexture(texture_background, false);

@@ -1,5 +1,6 @@
 #ifndef _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_OBSERVER_HPP
 #define _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_OBSERVER_HPP
+#include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <iostream>
 #include <memory>
@@ -9,7 +10,7 @@ class Subject;
 class Observer {
   public:
     virtual auto getID() -> std::string = 0;
-    virtual auto update(std::shared_ptr<void>) -> bool = 0;
+    virtual auto update(std::unique_ptr<sf::Vector2f> &&) -> bool = 0;
     virtual ~Observer() = default;
     Observer() = default;
     Observer(const Observer &o) = delete;
@@ -25,16 +26,16 @@ class Subject {
     Subject(Subject &&o) = delete;
     auto operator=(const Subject &o) -> Subject & = delete;
     auto operator=(Subject &&o) -> Subject && = delete;
-    virtual auto attach(Observer *o) -> bool;
-    virtual auto detach(Observer *o) -> bool;
-    virtual auto get_private_data() -> std::shared_ptr<void> = 0;
+    virtual auto attach(std::weak_ptr<Observer> o) -> bool;
+    virtual auto detach(std::weak_ptr<Observer> o) -> bool;
+    virtual auto get_private_data() -> std::unique_ptr<sf::Vector2f> = 0;
     virtual auto size() -> size_t { return follower.size(); }
 
     virtual void notify();
     virtual ~Subject() = default;
 
   private:
-    std::vector<Observer *> follower;
+    std::vector<std::weak_ptr<Observer>> follower;
 };
 
 #endif // _HOME_LONG_WORKING_SFML_HELLO_WORLD_INC_OBSERVER_HPP

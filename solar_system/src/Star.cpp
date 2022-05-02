@@ -1,19 +1,17 @@
 #include "Star.hpp"
 
-auto Star::get_private_data() -> std::shared_ptr<void> {
+auto Star::get_private_data() -> std::unique_ptr<sf::Vector2f> {
     auto pos = getPosition();
-    return std::make_shared<sf::Vector2f>(pos.x, pos.y);
+    return std::unique_ptr<sf::Vector2f>(new sf::Vector2f(pos.x, pos.y));
 }
 
-auto Star::update(std::shared_ptr<void> data) -> bool {
-    std::shared_ptr<sf::Vector2f> _data =
-        std::static_pointer_cast<sf::Vector2f>(data);
+auto Star::update(std::unique_ptr<sf::Vector2f> &&data) -> bool {
 
 #ifdef DEBUG
     std::cout << "get update : " << getID() << "\n";
 #endif
 
-    this->setG(*_data);
+    this->setG((*data));
     return true;
 }
 
@@ -21,14 +19,11 @@ auto Star::getID() -> std::string { return name; }
 
 auto Star::getShape() -> sf::Shape * { return shape.get(); }
 
-Star::Star(Orbit *ob, sf::Shape *sh, std::string _name)
-    : name(std::move(_name)), orbit(ob), shape(sh) {}
+Star::Star(std::unique_ptr<Orbit> &&ob, std::unique_ptr<sf::Shape> &&sh,
+           std::string _name)
+    : name(std::move(_name)), orbit(std::move(ob)), shape(std::move(sh)) {}
 
-Star::Star(const Star &o) : Element(o) {
-    this->name = o.name;
-    this->orbit = o.orbit;
-    this->shape = o.shape;
-}
+// Star::Star(const Star &o) : Element(o), enable_shared_from_this(o);
 
 auto Star::go() -> bool {
 
@@ -51,4 +46,12 @@ void Star::setG(const sf::Vector2f &pos) {
 
 auto Star::getPosition() -> sf::Vector2f { return shape->getPosition(); }
 
-auto Star::follow(Subject *o) -> bool { return o->attach(this); }
+auto Star::follow(std::weak_ptr<Subject> o) -> bool {
+    auto spf = o.lock();
+    if (spf) {
+        //    auto v = shared_from_this();
+        return spf->attach((std::shared_ptr<Star>(shared_from_this())));
+        // return spf->attach((std::shared_ptr<Star>(this)));
+    }
+    return false;
+}

@@ -19,10 +19,10 @@ class Element : public Subject, public Observer {
     auto operator=(Element &&o) -> Element && = delete;
 
     auto getID() -> std::string override = 0;
-    auto update(std::shared_ptr<void> d) -> bool override = 0;
-    auto get_private_data() -> std::shared_ptr<void> override = 0;
+    auto update(std::unique_ptr<sf::Vector2f> &&d) -> bool override = 0;
+    auto get_private_data() -> std::unique_ptr<sf::Vector2f> override = 0;
     virtual void setG(const sf::Vector2f &) = 0;
-    virtual auto follow(Subject *o) -> bool = 0;
+    virtual auto follow(std::weak_ptr<Subject> o) -> bool = 0;
     virtual auto getShape() -> sf::Shape * = 0;
     virtual auto go() -> bool = 0;
     ~Element() override = default;
@@ -32,25 +32,31 @@ class DecoratorElement : public Element {
   public:
     auto size() -> size_t override { return _elem->size(); }
     void notify() override { _elem->notify(); }
-    auto attach(Observer *o) -> bool override { return _elem->attach(o); }
+    auto attach(std::weak_ptr<Observer> o) -> bool override {
+        return _elem->attach(o);
+    }
 
-    auto detach(Observer *o) -> bool override { return _elem->detach(o); }
+    auto detach(std::weak_ptr<Observer> o) -> bool override {
+        return _elem->detach(o);
+    }
 
     auto getID() -> std::string override { return _elem->getID(); }
 
-    auto update(std::shared_ptr<void> _data) -> bool override {
-        return _elem->update(_data);
+    auto update(std::unique_ptr<sf::Vector2f>&& _data) -> bool override {
+        return _elem->update(std::move(_data));
     }
 
-    explicit DecoratorElement(Element *elem) : _elem(elem) {}
+    explicit DecoratorElement(std::shared_ptr<Element> elem) : _elem(std::move(elem)) {}
 
     void setG(const sf::Vector2f &v) override { _elem->setG(v); }
 
-    auto follow(Subject *o) -> bool override { return _elem->follow(o); }
+    auto follow(std::weak_ptr<Subject> o) -> bool override {
+        return _elem->follow(o.lock());
+    }
 
     auto getShape() -> sf::Shape * override { return _elem->getShape(); }
 
-    auto get_private_data() -> std::shared_ptr<void> override {
+    auto get_private_data() -> std::unique_ptr<sf::Vector2f> override {
         return _elem->get_private_data();
     }
     auto go() -> bool override { return _elem->go(); }

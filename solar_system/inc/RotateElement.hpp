@@ -7,7 +7,7 @@
 
 class RotateElement : public DecoratorElement {
   public:
-    explicit RotateElement(Element *elem, float angle)
+    explicit RotateElement(std::shared_ptr<Element> elem, float angle)
         : _angle(angle), DecoratorElement(elem) {}
 
     auto getShape() -> sf::Shape * override {
