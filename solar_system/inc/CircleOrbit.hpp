@@ -5,7 +5,7 @@
 
 class CircleOrbit : public Orbit {
   public:
-    CircleOrbit(sf::Vector2f _I, uint16_t _R, uint8_t speed);
+    CircleOrbit(sf::Vector2f _I, uint16_t _R, SPEED speed);
     auto fillRequiredData(const void *_I) -> bool override;
     auto fillOrbit() -> bool override;
 

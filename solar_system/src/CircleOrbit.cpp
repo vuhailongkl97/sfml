@@ -1,6 +1,6 @@
 #include "CircleOrbit.hpp"
 
-CircleOrbit::CircleOrbit(sf::Vector2f _I, uint16_t _R, uint8_t speed)
+CircleOrbit::CircleOrbit(sf::Vector2f _I, uint16_t _R, SPEED speed)
     : Orbit(speed) {
     this->R = _R;
 
@@ -33,8 +33,9 @@ auto CircleOrbit::fillOrbit() -> bool {
                                                       (this->I.x - x_current)));
         };
 
-        auto ret = calculate_for_inbound(cb, x, y_prev, getSpeed(), I.x - R,
-                                         I.x + R, THREAD_HOLD);
+        auto ret =
+            calculate_for_inbound(cb, x, y_prev, static_cast<float>(getSpeed()),
+                                  I.x - R, I.x + R, THREAD_HOLD);
 
         x = ret.x;
         y = ret.y;
@@ -52,7 +53,8 @@ auto CircleOrbit::fillOrbit() -> bool {
                                                       (this->I.x - x_current)));
         };
 
-        auto ret = calculate_for_inbound(cb, x, y_prev, -1 * getSpeed(),
+        auto ret = calculate_for_inbound(cb, x, y_prev,
+                                         -static_cast<float>(getSpeed()),
                                          I.x - R, I.x + R, THREAD_HOLD);
         x = ret.x;
         y = ret.y;
