@@ -242,8 +242,8 @@ darwin-dispatch-once-nonstatic,
 #fuchsia-default-arguments-calls,
 fuchsia-default-arguments-declarations,
 fuchsia-header-anon-namespaces,
-#note this need to be update
-#fuchsia-multiple-inheritance,
+note this need to be update
+fuchsia-multiple-inheritance,
 fuchsia-overloaded-operator,
 fuchsia-restrict-system-includes,
 fuchsia-statically-constructed-objects,

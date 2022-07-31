@@ -3,11 +3,13 @@
 
 #include "Element.hpp"
 #include <memory>
+#include <utility>
 
 class RotateElement : public DecoratorElement {
   public:
     explicit RotateElement(std::shared_ptr<Element> elem, float angle)
         : _angle(angle), DecoratorElement(elem) {}
+        : _angle(angle), DecoratorElement(std::move(elem)) {}
 
     auto getShape() -> sf::Shape * override {
         _elem->getShape()->rotate(_angle);

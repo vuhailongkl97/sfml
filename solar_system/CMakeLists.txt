@@ -7,7 +7,9 @@ message("use" ${CLANG_TIDY})
 set(CMAKE_CXX_CLANG_TIDY
   clang-tidy;
   -header-filter=.;
-  -warnings-as-errors=*;)
+  -warnings-as-errors=*;
+  --fix;
+  --fix-errors;)
 
 set(CMAKE_BUILD_TYPE Debug)
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g ")

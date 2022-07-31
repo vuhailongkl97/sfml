@@ -90,7 +90,6 @@ class Orbit {
     std::vector<sf::Vector2f> Points;
 
   private:
-    size_t idx;
     SPEED speed;
 };
 

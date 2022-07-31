@@ -47,8 +47,9 @@ static const std::array<RADIUS, 10> RADIUS_LV{
 auto main() -> int {
 
     std::vector<std::string> Solar_string{};
-    const sf::Vector2f DEFAULT_POSITION = {200, 200};
-    const sf::Vector2f DEFAULT_WINDOW_SIZE = {800, 800};
+    const sf::Vector2u DEFAULT_POSITION = {200, 200};
+    const sf::Vector2f DEFAULT_POSITIONF = {200, 200};
+    const sf::Vector2u DEFAULT_WINDOW_SIZE = {800, 800};
 
     sf::FileInputStream afm;
     sf::Texture texture_background;
@@ -120,7 +121,7 @@ auto main() -> int {
 
         for (auto &it : solar_shapes) {
             auto orbit{std::unique_ptr<CircleOrbit>(new CircleOrbit(
-                DEFAULT_POSITION, static_cast<uint16_t>(RADIUS_LV.at(i)),
+                DEFAULT_POSITIONF, static_cast<uint16_t>(RADIUS_LV.at(i)),
                 SPEED::LV3))};
             auto shape_ptr = std::unique_ptr<sf::Shape>(
                 static_cast<sf::Shape *>(it.second.release()));

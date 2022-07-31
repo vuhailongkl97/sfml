@@ -3,7 +3,7 @@
 const float THREAD_HOLD = 6;
 const float ONEHUNDERED = 100;
 
-Orbit::Orbit(SPEED _speed) : speed(_speed), idx(0) {
+Orbit::Orbit(SPEED _speed) : speed(_speed) {
     std::cout << "need fill data/required data\n";
 }
 
